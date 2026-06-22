@@ -7,7 +7,7 @@
 #include <string.h>
 #include <sys/user.h>
 #include <sys/syscall.h>
-#include "../include/parser.h"
+#include "../include/input.h"
 #include "../include/syscall_handler.h"
 
 int main(int argc, char** argv) {

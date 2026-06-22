@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <parser.h>
+#include <input.h>
 
-Test(monitor_suite, test_get_input_basic) {
+Test(get_input, basic) {
     FILE* stream = fmemopen("primero segundo tercero\n", 24, "r");
     char* comando = NULL;
     int argc = 0;

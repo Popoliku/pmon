@@ -12,13 +12,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(criterion)
 
-add_executable(pmon src/monitor.c src/parser.c src/syscall_handler.c)
+add_executable(pmon src/monitor.c src/input.c src/syscall_handler.c)
 
 add_executable(test_nested_forks test/programs/test_nested_forks.c)
 
 enable_testing()
-add_executable(test_parser test/test_parser.c src/parser.c)
-add_dependencies(test_parser criterion)
-target_link_libraries(test_parser PRIVATE criterion)
-target_include_directories(test_parser PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
-add_test(NAME parser_tests COMMAND test_parser)
+add_executable(test_input test/test_input.c src/input.c)
+add_dependencies(test_input criterion)
+target_link_libraries(test_input PRIVATE criterion)
+target_include_directories(test_input PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
+add_test(NAME input_tests COMMAND test_input)
