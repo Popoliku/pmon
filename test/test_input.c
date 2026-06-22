@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <input.h>
+#include "input.h"
 
 Test(get_input, basic) {
     FILE* stream = fmemopen("primero segundo tercero\n", 24, "r");
