@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 	int status;
 	waitpid(child_pid, &status, 0);
 	printf("El pid del proceso monitorizado es %d\n", child_pid);
-	ptrace(PTRACE_SETOPTIONS, child_pid, NULL, PTRACE_O_TRACEFORK);
+	ptrace(PTRACE_SETOPTIONS, child_pid, NULL, PTRACE_O_TRACEFORK | PTRACE_O_TRACESYSGOOD);
 	while(1) {
 		printf("pmon> ");
 		fflush(stdout);
@@ -55,13 +55,20 @@ int main(int argc, char** argv) {
 						printf("[%d] proceso terminado por señal %d\n", pid, WTERMSIG(status));
 						break;
 					}
-					//Falta verificar que no este parado por una señal
+					//Falta gestionar otros tipos de signals
+					if (WIFSTOPPED(status)) {
+						int signal = WSTOPSIG(status);
+						if (signal == SIGCHLD) {
+							//ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
+							continue; 
+						}
+					}
 					syscall_interes = handle_syscall(pid, &status, &regs);
 				}
 			}
+			free(pmon_argv);
+			free(comando);
+			//ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 		}
-		free(pmon_argv);
-		free(comando);
-		//ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 	}
 }

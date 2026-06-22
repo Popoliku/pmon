@@ -59,7 +59,6 @@ int nieto() {
     const char *msg2 = "nieto write 2\n";
     write(1, msg2, strlen(msg));
     waitpid(pid, NULL, 0);
-    waitpid(pid, NULL, 0);
     close(pipefd[0]);
     close(pipefd[1]);
     close(10);
