@@ -12,7 +12,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(criterion)
 
-add_executable(pmon src/monitor.c src/parser.c)
+add_executable(pmon src/monitor.c src/parser.c src/syscall_handler.c)
 
 add_executable(test_nested_forks test/programs/test_nested_forks.c)
 

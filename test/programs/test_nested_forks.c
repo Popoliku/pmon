@@ -54,6 +54,11 @@ int nieto() {
     if (pid == 0) {
         return bisnieto();
     }
+    const char *msg = "nieto write\n";
+    write(1, msg, strlen(msg));
+    const char *msg2 = "nieto write 2\n";
+    write(1, msg2, strlen(msg));
+    waitpid(pid, NULL, 0);
     waitpid(pid, NULL, 0);
     close(pipefd[0]);
     close(pipefd[1]);
