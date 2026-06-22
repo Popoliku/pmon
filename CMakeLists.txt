@@ -17,8 +17,16 @@ add_executable(pmon src/monitor.c src/input.c src/syscall_handler.c)
 add_executable(test_nested_forks test/programs/test_nested_forks.c)
 
 enable_testing()
+
 add_executable(test_input test/test_input.c src/input.c)
 add_dependencies(test_input criterion)
 target_link_libraries(test_input PRIVATE criterion)
 target_include_directories(test_input PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
 add_test(NAME input_tests COMMAND test_input)
+
+add_executable(test_syscall_handler test/test_syscall_handler.c src/syscall_handler.c)
+add_dependencies(test_syscall_handler criterion)
+target_link_libraries(test_syscall_handler PRIVATE criterion)
+target_include_directories(test_syscall_handler PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
+add_test(NAME syscall_handler_tests COMMAND test_syscall_handler)
+
