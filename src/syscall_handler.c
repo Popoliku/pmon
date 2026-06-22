@@ -47,7 +47,7 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs) {
 			printf("OPEN: fichero %s\n", fname);
 			if(fname) free(fname);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
-			wait(NULL);
+			waitpid(pid, status, 0);
 			ptrace(PTRACE_GETREGS, pid, NULL, regs);
 			int fd = regs->rax;
 			printf("FIN OPEN: retorna %d\n", fd);
@@ -88,9 +88,9 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs) {
 			printf("EXEC: programa %s\n", fname);
 			if(fname) free(fname);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
-			wait(NULL);
+		      	waitpid(pid, status, 0);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
-			wait(NULL);
+		      	waitpid(pid, status, 0);
 			return 1;
 		}
 		case SYS_dup: {
