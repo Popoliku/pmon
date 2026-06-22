@@ -112,8 +112,20 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs) {
 			printf(" = %lld\n", regs->rax);
 			return 1;
 		}
-		case SYS_pipe: {
-		       	printf("PIPE:\n");
+		case SYS_pipe:
+		case SYS_pipe2: {
+			void* pr_addr = (void*) regs->rdi;
+		       	printf("PIPE: ");
+			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
+			waitpid(pid, status, 0);
+			ptrace(PTRACE_GETREGS, pid, NULL, regs);
+			long ret = regs->rax;
+			if(ret == 0) {
+				int fd[2];
+				peek_proc_mem(pid, pr_addr, fd, sizeof(fd));
+				printf("fd lectura %d, fd escritura %d ", fd[0], fd[1]); 
+			}
+			printf("= %ld\n", ret);
 		       	return 1;
 	       	}
 		case SYS_clone: {
