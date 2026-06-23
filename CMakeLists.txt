@@ -31,3 +31,15 @@ target_link_libraries(test_syscall_handler PRIVATE criterion)
 target_include_directories(test_syscall_handler PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
 add_test(NAME syscall_handler_tests COMMAND test_syscall_handler)
 
+add_executable(test_pr_tree test/test_pr_tree.c src/pr_tree.c src/fd_table.c)
+add_dependencies(test_pr_tree criterion)
+target_link_libraries(test_pr_tree PRIVATE criterion)
+target_include_directories(test_pr_tree PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
+add_test(NAME pr_tree_tests COMMAND test_pr_tree)
+
+add_executable(test_fd_table test/test_fd_table.c src/fd_table.c)
+add_dependencies(test_fd_table criterion)
+target_link_libraries(test_fd_table PRIVATE criterion)
+target_include_directories(test_fd_table PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
+add_test(NAME fd_table_tests COMMAND test_fd_table)
+

@@ -24,15 +24,15 @@ void add_pr(pr_array* prs, pid_t pid, pid_t ppid) {
 	prs->size++;
 }
 
-void print_tree(pr_array* prs, pid_t current_pid, int level) {
+void print_tree(FILE* stream, pr_array* prs, pid_t current_pid, int level) {
 	for(int i = 0; i<prs->size; i++) {
 		if(prs->nodes[i].ppid == current_pid) {
 			for(int j = 0; j < level; j++) {
-				printf("      ");             
+				fprintf(stream, "      ");             
 			}
-			printf("└── %d\n", prs->nodes[i].pid);
-			print_fds(prs->nodes[i].pid, level+1);
-			print_tree(prs, prs->nodes[i].pid, level + 1);
+			fprintf(stream, "└── %d\n", prs->nodes[i].pid);
+			print_fds(stream, prs->nodes[i].pid, level+1);
+			print_tree(stream, prs, prs->nodes[i].pid, level + 1);
 		}
 	}
 }

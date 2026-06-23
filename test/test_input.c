@@ -4,7 +4,7 @@
 #include <string.h>
 #include "input.h"
 
-Test(get_input, basic) {
+Test(get_input, not_empty_input) {
     FILE* stream = fmemopen("primero segundo tercero\n", 24, "r");
     char* comando = NULL;
     int argc = 0;

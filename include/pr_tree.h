@@ -18,6 +18,6 @@ typedef struct {
 
 void add_pr(pr_array* prs, pid_t pid, pid_t ppid);
 
-void print_tree(pr_array* prs, pid_t current_pid, int level);
+void print_tree(FILE* stream, pr_array* prs, pid_t current_pid, int level);
 
 #endif

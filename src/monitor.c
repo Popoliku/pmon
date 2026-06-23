@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 			free(command);
 			//ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 		} else if (strcmp(pmon_argv[0], "ps") == 0) {
-			print_tree(&prs, -1, 0);
+			print_tree(stdout, &prs, -1, 0);
 		}
 	}
 }
