@@ -26,6 +26,7 @@ Instala los siguientes paquetes esenciales:
 ```bash
 sudo apt update
 sudo apt install cmake build-essential
+```
 
 ---
 
