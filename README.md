@@ -70,11 +70,18 @@ programas auxiliares de testing
 
 ## ▶️ Ejecución
 
-Ejecutar pmon:
+Se puede ejecutar simplemente con:
 
 ```bash
 make run
 ```
+
+Esto ejecutará pmon con un programa de prueba que se encuentra en test/programs/
+
+También se puede ejecutar pasándole el programa deseado:
+
+```bash
+make run ARGS="./ejemplo arg1 arg2"
 
 O directamente:
 
