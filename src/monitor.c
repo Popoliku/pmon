@@ -23,6 +23,43 @@ int quit_cmd(pr_array* prs) {
 	return(0);
 }
 
+void cont_cmd(int pmon_argc, char** pmon_argv, pr_array* prs) {
+	if(pmon_argc != 2) {
+		printf("El uso correcto del comando es: cont <pid>\n");
+		return;
+	}
+	pid_t pid = atoi(pmon_argv[1]);
+	int state = pr_state(prs, pid);
+	if(state == -1) {
+		printf("No existe proceso con pid %d\n", pid);
+		return;
+	} else if(!state) {
+		printf("[%d] proceso ya terminado\n", pid);
+		return;
+	}
+	int status;
+	int syscall_interes = 0;
+	struct user_regs_struct regs;
+	while(!syscall_interes) {
+		ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
+		waitpid(pid, &status, 0);
+		ptrace(PTRACE_GETREGS, pid, NULL, &regs);
+		if(WIFEXITED(status)) {
+			printf("[%d] proceso ha terminado con codigo %d\n", pid, WEXITSTATUS(status));
+			mark_term(prs, pid);
+			ptrace(PTRACE_DETACH, pid, NULL, NULL);
+			break;
+		}
+		if (WIFSTOPPED(status)) {
+			int signal = WSTOPSIG(status);
+			if (signal == SIGCHLD) {
+				continue; 
+			}
+		}
+		syscall_interes = handle_syscall(pid, &status, &regs, prs);
+	}
+}
+
 int main(int argc, char** argv) {
 	if(argc < 2) {
 		fprintf(stderr, "Número de argumentos incorrecto\n");
@@ -50,39 +87,7 @@ int main(int argc, char** argv) {
 		char** pmon_argv = get_input(stdin, &command, &pmon_argc);
 		if(pmon_argc == 0) continue;
 		if(strcmp(pmon_argv[0], "cont") == 0) {
-			if(pmon_argc != 2) {
-				printf("El uso correcto del comando es: cont <pid>\n");
-			} else {
-				pid_t pid = atoi(pmon_argv[1]);
-				int state = pr_state(&prs, pid);
-				if(state == -1) {
-					printf("No existe proceso con pid %d\n", pid);
-					continue;
-				} else if(!state) {
-					printf("[%d] proceso ya terminado\n", pid);
-					continue;
-				}
-				int syscall_interes = 0;
-				struct user_regs_struct regs;
-				while(!syscall_interes) {
-					ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
-					waitpid(pid, &status, 0);
-					ptrace(PTRACE_GETREGS, pid, NULL, &regs);
-					if(WIFEXITED(status)) {
-						printf("[%d] proceso ha terminado con codigo %d\n", pid, WEXITSTATUS(status));
-						mark_term(&prs, pid);
-						ptrace(PTRACE_DETACH, pid, NULL, NULL);
-						break;
-					}
-					if (WIFSTOPPED(status)) {
-						int signal = WSTOPSIG(status);
-						if (signal == SIGCHLD) {
-							continue; 
-						}
-					}
-					syscall_interes = handle_syscall(pid, &status, &regs, &prs);
-				}
-			}
+			cont_cmd(pmon_argc, pmon_argv, &prs);
 			free(pmon_argv);
 			free(command);
 		} else if(strcmp(pmon_argv[0], "ps") == 0) {
