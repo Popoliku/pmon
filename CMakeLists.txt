@@ -12,7 +12,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(criterion)
 
-add_executable(pmon src/monitor.c src/input.c src/syscall_handler.c src/pr_tree.c)
+add_executable(pmon src/monitor.c src/input.c src/syscall_handler.c src/pr_tree.c src/fd_table.c)
 target_include_directories(pmon PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 add_executable(test_nested_forks test/programs/test_nested_forks.c)
@@ -25,7 +25,7 @@ target_link_libraries(test_input PRIVATE criterion)
 target_include_directories(test_input PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)
 add_test(NAME input_tests COMMAND test_input)
 
-add_executable(test_syscall_handler test/test_syscall_handler.c src/syscall_handler.c src/pr_tree.c)
+add_executable(test_syscall_handler test/test_syscall_handler.c src/syscall_handler.c src/pr_tree.c src/fd_table.c)
 add_dependencies(test_syscall_handler criterion)
 target_link_libraries(test_syscall_handler PRIVATE criterion)
 target_include_directories(test_syscall_handler PRIVATE ${criterion_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include)

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include "fd_table.h"
 
 typedef struct {
 	pid_t pid;
@@ -24,12 +25,13 @@ void add_pr(pr_array* prs, pid_t pid, pid_t ppid) {
 }
 
 void print_tree(pr_array* prs, pid_t current_pid, int level) {
-	for(int i = 0; i < prs->size; i++) {
+	for(int i = 0; i<prs->size; i++) {
 		if(prs->nodes[i].ppid == current_pid) {
 			for(int j = 0; j < level; j++) {
 				printf("      ");             
 			}
 			printf("└── %d\n", prs->nodes[i].pid);
+			print_fds(prs->nodes[i].pid, level+1);
 			print_tree(prs, prs->nodes[i].pid, level + 1);
 		}
 	}
