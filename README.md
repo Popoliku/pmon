@@ -34,8 +34,10 @@ sudo apt install cmake build-essential
 
 Clona el repositorio:
 
+```bash
 git clone https://github.com/Popoliku/pmon
 cd pmon
+```
 
 ---
 
@@ -70,21 +72,29 @@ programas auxiliares de testing
 
 Ejecutar pmon:
 
+```bash
 make run
+```
 
 O directamente:
 
+```bash
 ./build/pmon <programa> [argumentos...]
+```
 
 Ejemplo:
 
+```bash
 ./build/pmon /bin/ls -l
+```
 
 Durante la ejecución, PMON permite interactuar mediante comandos desde la terminal:
 
+```text
 cont <pid> → reanuda el proceso hasta la siguiente syscall e imprime por pantalla los argumentos y el valor de retorno
 ps         → imprime la jerarquía de procesos así como el estado de los descriptores de ficheros de cada proceso
 quit       → sale de pmon
+```
 
 ---
 
@@ -92,22 +102,30 @@ quit       → sale de pmon
 
 Ejecutar todos los tests:
 
+```bash
 make test
+```
 
 También pueden ejecutarse manualmente con CTest:
 
+```bash
 ctest --test-dir build --output-on-failure
+```
 
 Ejecutar un test específico:
 
+```bash
 ./build/test_input
 ./build/test_syscall_handler
 ./build/test_pr_tree
 ./build/test_fd_table
+```
 
 ---
 
 ## 📁 Estructura del proyecto
+
+```text
 .
 ├── include/        # Headers públicos
 ├── src/            # Implementación principal
@@ -116,6 +134,7 @@ Ejecutar un test específico:
 ├── CMakeLists.txt
 ├── Makefile
 └── README.md
+```
 
 ---
 
@@ -123,7 +142,9 @@ Ejecutar un test específico:
 
 Eliminar archivos generados:
 
+```bash
 make clean
+```
 
 ---
 
