@@ -7,8 +7,9 @@
 #include <string.h>
 #include <sys/user.h>
 #include <sys/syscall.h>
-#include "../include/input.h"
-#include "../include/syscall_handler.h"
+#include "input.h"
+#include "pr_tree.h"
+#include "syscall_handler.h"
 
 int main(int argc, char** argv) {
 	if(argc < 2) {
@@ -24,15 +25,17 @@ int main(int argc, char** argv) {
 		return 1;
 	} 
 	int status;
+	pr_array prs = { NULL, 0, 0 };
 	waitpid(child_pid, &status, 0);
 	printf("El pid del proceso monitorizado es %d\n", child_pid);
+	add_pr(&prs, child_pid, -1);
 	ptrace(PTRACE_SETOPTIONS, child_pid, NULL, PTRACE_O_TRACEFORK | PTRACE_O_TRACESYSGOOD);
 	while(1) {
 		printf("pmon> ");
 		fflush(stdout);
-		char* comando = NULL;
+		char* command = NULL;
 		int pmon_argc = 0;
-		char** pmon_argv = get_input(stdin, &comando, &pmon_argc);
+		char** pmon_argv = get_input(stdin, &command, &pmon_argc);
 		if(pmon_argc == 0) continue;
 		if(strcmp(pmon_argv[0], "cont") == 0) {
 			if(pmon_argc != 2) {
@@ -63,12 +66,14 @@ int main(int argc, char** argv) {
 							continue; 
 						}
 					}
-					syscall_interes = handle_syscall(pid, &status, &regs);
+					syscall_interes = handle_syscall(pid, &status, &regs, &prs);
 				}
 			}
 			free(pmon_argv);
-			free(comando);
+			free(command);
 			//ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
+		} else if (strcmp(pmon_argv[0], "ps") == 0) {
+			print_tree(&prs, -1, 0);
 		}
 	}
 }

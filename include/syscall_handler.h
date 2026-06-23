@@ -2,6 +2,7 @@
 #define SYSCALL_HANDLER_H
 
 #include <sys/types.h>
+#include "pr_tree.h"
 
 /**
  * @brief 	   Lee un bloque de memoria del espacio de direcciones del proceso monitorizado.
@@ -25,8 +26,9 @@ char * peek_proc_string(pid_t pid, const void *org);
  * @param pid         Identificador del proceso (PID) que ha disparado la llamada al sistema.
  * @param status      Puntero al entero que contiene el estado de parada actual reportado por waitpid().
  * @param regs        Puntero a la estructura que contiene los registros de la CPU del proceso. 
+ * @param prs	      Puntero a la estructura que contiene los pid de los procesos creados hasta ahora
  * @return 	      Un entero que representa si la syscall era una de interes o no.	   
  */
-int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs);
+int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_array* prs);
 
 #endif

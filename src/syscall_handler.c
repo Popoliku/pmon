@@ -6,6 +6,7 @@
 #include <sys/user.h>
 #include <sys/syscall.h>
 #include <sys/wait.h>
+#include "pr_tree.h"
 
 void peek_proc_mem(pid_t pid, const void *org, void *dst, size_t n) {
     int niter = n/sizeof(long);
@@ -36,7 +37,7 @@ char * peek_proc_string(pid_t pid, const void *org) {
     return NULL;
 }
 
-int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs) {
+int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_array* prs) {
 	ptrace(PTRACE_GETREGS, pid, NULL, regs);
 	long syscall_nr = regs->orig_rax;
 	switch(syscall_nr) {
@@ -135,6 +136,7 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs) {
 			if(event == PTRACE_EVENT_FORK) {
 				pid_t new_pid;
 				ptrace(PTRACE_GETEVENTMSG, pid, NULL, &new_pid);
+				add_pr(prs, new_pid, pid);
 				printf("[%d] fork() = %d\n", pid, new_pid);
 			}
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
