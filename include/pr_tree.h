@@ -8,6 +8,7 @@
 typedef struct {
 	pid_t pid;   
 	pid_t ppid;  
+	int alive;
 } pr_node;
 
 typedef struct {
@@ -17,6 +18,10 @@ typedef struct {
 } pr_array;
 
 void add_pr(pr_array* prs, pid_t pid, pid_t ppid);
+
+void mark_term(pr_array* prs, pid_t pid);
+
+int pr_state(pr_array* prs, pid_t pid);
 
 void print_tree(FILE* stream, pr_array* prs, pid_t current_pid, int level);
 

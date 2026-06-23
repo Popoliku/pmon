@@ -11,6 +11,18 @@
 #include "pr_tree.h"
 #include "syscall_handler.h"
 
+int quit_cmd(pr_array* prs) {
+	for(int i = 0;  i<prs->size; i++) {
+		if(prs->nodes[i].alive) {
+			pid_t pid = prs->nodes[i].pid;
+			kill(pid, SIGKILL);
+			waitpid(pid, NULL, WNOHANG);
+		}
+	}
+	if(prs->nodes != NULL) free(prs->nodes);
+	return(0);
+}
+
 int main(int argc, char** argv) {
 	if(argc < 2) {
 		fprintf(stderr, "Número de argumentos incorrecto\n");
@@ -42,7 +54,14 @@ int main(int argc, char** argv) {
 				printf("El uso correcto del comando es: cont <pid>\n");
 			} else {
 				pid_t pid = atoi(pmon_argv[1]);
-				//Falta verificar que el argumento pasado sea un numero o un pid valido
+				int state = pr_state(&prs, pid);
+				if(state == -1) {
+					printf("No existe proceso con pid %d\n", pid);
+					continue;
+				} else if(!state) {
+					printf("[%d] proceso ya terminado\n", pid);
+					continue;
+				}
 				int syscall_interes = 0;
 				struct user_regs_struct regs;
 				while(!syscall_interes) {
@@ -50,19 +69,14 @@ int main(int argc, char** argv) {
 					waitpid(pid, &status, 0);
 					ptrace(PTRACE_GETREGS, pid, NULL, &regs);
 					if(WIFEXITED(status)) {
-						printf("[%d] proceso terminado con codigo %d\n", pid, WEXITSTATUS(status));
+						printf("[%d] proceso ha terminado con codigo %d\n", pid, WEXITSTATUS(status));
+						mark_term(&prs, pid);
 						ptrace(PTRACE_DETACH, pid, NULL, NULL);
 						break;
 					}
-					if(WIFSIGNALED(status)) {
-						printf("[%d] proceso terminado por señal %d\n", pid, WTERMSIG(status));
-						break;
-					}
-					//Falta gestionar otros tipos de signals
 					if (WIFSTOPPED(status)) {
 						int signal = WSTOPSIG(status);
 						if (signal == SIGCHLD) {
-							//ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 							continue; 
 						}
 					}
@@ -71,9 +85,12 @@ int main(int argc, char** argv) {
 			}
 			free(pmon_argv);
 			free(command);
-			//ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
-		} else if (strcmp(pmon_argv[0], "ps") == 0) {
+		} else if(strcmp(pmon_argv[0], "ps") == 0) {
 			print_tree(stdout, &prs, -1, 0);
+		} else if(strcmp(pmon_argv[0], "quit") == 0) {
+			return quit_cmd(&prs);	
+		} else {
+			printf("Comando inexistente\n");
 		}
 	}
 }

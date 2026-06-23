@@ -6,6 +6,7 @@
 typedef struct {
 	pid_t pid;
 	pid_t ppid;
+	int alive;
 } pr_node;
 
 typedef struct {
@@ -21,7 +22,21 @@ void add_pr(pr_array* prs, pid_t pid, pid_t ppid) {
 	}
 	prs->nodes[prs->size].pid = pid;
 	prs->nodes[prs->size].ppid = ppid;
+	prs->nodes[prs->size].alive = 1;
 	prs->size++;
+}
+
+void mark_term(pr_array* prs, pid_t pid) {
+	for(int i = 0; i<prs->size; i++) {
+		if(prs->nodes[i].pid == pid) prs->nodes[i].alive = 0;
+	}
+}
+
+int pr_state(pr_array* prs, pid_t pid) {
+	for(int i = 0; i<prs->size; i++) {
+		if(prs->nodes[i].pid == pid) return prs->nodes[i].alive;
+	}
+	return -1;
 }
 
 void print_tree(FILE* stream, pr_array* prs, pid_t current_pid, int level) {
@@ -30,7 +45,9 @@ void print_tree(FILE* stream, pr_array* prs, pid_t current_pid, int level) {
 			for(int j = 0; j < level; j++) {
 				fprintf(stream, "      ");             
 			}
-			fprintf(stream, "└── %d\n", prs->nodes[i].pid);
+			fprintf(stream, "└── %d", prs->nodes[i].pid);
+			if(!prs->nodes[i].alive) fprintf(stream, " (terminado)");
+			fprintf(stream, "\n");
 			print_fds(stream, prs->nodes[i].pid, level+1);
 			print_tree(stream, prs, prs->nodes[i].pid, level + 1);
 		}

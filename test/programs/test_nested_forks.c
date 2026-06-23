@@ -4,7 +4,7 @@
  * Programa de prueba para el monitor pmon.
  *
  * Cuatro procesos en los que se intenta abarcar todos los syscall de interes, 
- * en este orden:
+ * en este orden: (!!Este esquema no esta actualiado)
  *
  *   P0 (padre)     -> open() + write()  
  *   P1 (hijo)      -> open() + read()   
@@ -98,17 +98,26 @@ int main(void) {
     const char *contenido = "padre write\n";
     write(fd, contenido, strlen(contenido));
     close(fd);
-    pid_t pid = fork();
-    if (pid < 0) {
+    pid_t pid1 = fork();
+    if (pid1 < 0) {
         perror("fork padre");
         return 1;
     }
-    if (pid == 0) {
+    if (pid1 == 0) {
         return hijo();
     }    
-    const char *msg = "padre write 2\n";
-    write(1, msg, strlen(msg));
-    waitpid(pid, NULL, 0);
+    const char *msg = "hijo 2 write\n";
+    pid_t pid2 = fork();
+    if (pid2 < 0) {
+    	perror("segundo fork padre");
+	return 1;
+    }
+    if (pid2 == 0) {
+	write(1, msg, strlen(msg));
+    	return 0;
+    }
+    waitpid(pid1, NULL, 0);
+    waitpid(pid2, NULL, 0);
     unlink(TMP_FILE);
     return 0;
 }

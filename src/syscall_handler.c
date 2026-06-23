@@ -138,9 +138,9 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 				ptrace(PTRACE_GETEVENTMSG, pid, NULL, &new_pid);
 				add_pr(prs, new_pid, pid);
 				printf("[%d] fork() = %d\n", pid, new_pid);
+				ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
+				waitpid(pid, status, 0);
 			}
-			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
-			waitpid(pid, status, 0);
 			return 1;
 		}
 		case SYS_wait4: {
@@ -152,7 +152,7 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 		default: 
 			printf("Syscall no de interes: %d\n", syscall_nr);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
-			if(syscall_nr != SYS_exit_group) wait(NULL);
+			if(syscall_nr != SYS_exit_group) waitpid(pid, status, 0);
 			return 0;
 	}
 }

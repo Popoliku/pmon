@@ -30,6 +30,23 @@ Test(add_pr, array_full) {
 	free(prs.nodes);
 }
 
+Test(pr_state_and_mark_term, success) {
+	pr_node nodes[] = {
+		{ 1000, -1, 1 },
+		{ 2000, 1000, 1 }
+	};
+	pr_array prs = { nodes, 2, 10 };
+
+	cr_assert_eq(pr_state(&prs, 0), 1);
+	cr_assert_eq(pr_state(&prs, 1), 1);
+
+	mark_term(&prs, 2000);
+
+	cr_assert_eq(pr_state(&prs, 2000), 0);
+	cr_assert_eq(pr_state(&prs, 1000), 1);
+	cr_assert_eq(pr_state(&prs, 9999), -1);
+}
+
 Test(print_tree, empty_tree) {
 	pr_array prs = { NULL, 0, 0 };
 
@@ -47,21 +64,21 @@ Test(print_tree, empty_tree) {
 }
 
 Test(print_tree, not_empty_tree) {
-    pr_array prs = { NULL, 0, 0 };
+	pr_array prs = { NULL, 0, 0 };
 
-    add_pr(&prs, 1000, -1);
-    add_pr(&prs, 2000, 1000);
+	add_pr(&prs, 1000, -1);
+	add_pr(&prs, 2000, 1000);
 
-    char* buffer = NULL;
-    size_t size = 0;
-    FILE *mem_stream = open_memstream(&buffer, &size);
+	char* buffer = NULL;
+	size_t size = 0;
+	FILE *mem_stream = open_memstream(&buffer, &size);
 
-    print_tree(mem_stream, &prs, -1, 0);
-    fflush(mem_stream);
-    fclose(mem_stream);
+	print_tree(mem_stream, &prs, -1, 0);
+	fflush(mem_stream);
+	fclose(mem_stream);
 
-    cr_assert_str_eq(buffer, "└── 1000\n      └── 2000\n");
+	cr_assert_str_eq(buffer, "└── 1000\n      └── 2000\n");
 
-    free(buffer);
-    free(prs.nodes);
+	free(buffer);
+	free(prs.nodes);
 }
