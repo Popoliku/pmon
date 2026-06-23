@@ -14,9 +14,7 @@ Permite ejecutar un programa objetivo y rastrear de forma
 automática toda su descendencia (procesos hijos generados 
 mediante `fork`). Intercepta de forma segura 
 las fases de entrada y salida de cada syscall sin alterar 
-el flujo original del binario. Además, permite imprimir
-la jerarquía de procesos así como los estados de los
-descriptores de fichero de cada proceso
+el flujo original del binario. 
 
 ---
 
@@ -29,14 +27,18 @@ Instala los siguientes paquetes esenciales:
 sudo apt update
 sudo apt install cmake build-essential
 
-📥 Descarga
+---
+
+## 📥 Descarga
 
 Clona el repositorio:
 
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/Popoliku/pmon
 cd pmon
 
-🔨 Compilación
+---
+
+## 🔨 Compilación
 
 La forma recomendada de compilar el proyecto es mediante el Makefile:
 
@@ -55,7 +57,9 @@ build/pmon → ejecutable principal
 binarios de tests
 programas auxiliares de testing
 
-▶️ Ejecución
+---
+
+## ▶️ Ejecución
 
 Ejecutar pmon:
 
@@ -69,9 +73,15 @@ Ejemplo:
 
 ./build/pmon /bin/ls -l
 
-Durante la ejecución, PMON permite interactuar mediante comandos desde la terminal.
+Durante la ejecución, PMON permite interactuar mediante comandos desde la terminal:
 
-🧪 Tests
+cont <pid> → reanuda el proceso hasta la siguiente syscall e imprime por pantalla los argumentos y el valor de retorno
+ps         → imprime la jerarquía de procesos así como el estado de los descriptores de ficheros de cada proceso
+quit       → sale de pmon
+
+---
+
+## 🧪 Tests
 
 Ejecutar todos los tests:
 
@@ -88,21 +98,30 @@ Ejecutar un test específico:
 ./build/test_pr_tree
 ./build/test_fd_table
 
-📁 Estructura del proyecto
+---
+
+## 📁 Estructura del proyecto
 .
 ├── include/        # Headers públicos
 ├── src/            # Implementación principal
 ├── test/           # Unit tests y programas auxiliares
 ├── build/          # Archivos generados por CMake
 ├── CMakeLists.txt
+├── Makefile
 └── README.md
-🧹 Limpieza
+
+---
+
+## 🧹 Limpieza
 
 Eliminar archivos generados:
 
 make clean
 
-📝 Notas
+---
+
+## 📝 Notas
+
 pmon está desarrollado y probado en Linux.
 El monitor utiliza ptrace, por lo que requiere permisos adecuados para trazar procesos.
 Algunos tests dependen de comportamiento específico del kernel Linux.
