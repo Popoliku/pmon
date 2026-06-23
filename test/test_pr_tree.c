@@ -37,8 +37,8 @@ Test(pr_state_and_mark_term, success) {
 	};
 	pr_array prs = { nodes, 2, 10 };
 
-	cr_assert_eq(pr_state(&prs, 0), 1);
-	cr_assert_eq(pr_state(&prs, 1), 1);
+	cr_assert_eq(pr_state(&prs, 1000), 1);
+	cr_assert_eq(pr_state(&prs, 2000), 1);
 
 	mark_term(&prs, 2000);
 

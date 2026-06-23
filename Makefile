@@ -1,6 +1,6 @@
 
-ARGS ?= ls -la
 BUILD_DIR = build
+ARGS = ./{BUILD_DIR}/test_nested_forks
 
 all: build
 
