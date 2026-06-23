@@ -45,13 +45,13 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 		case SYS_openat: {
 			void* pr_addr = (syscall_nr == SYS_openat) ? (void*)regs->rsi : (void*)regs->rdi;
 			char* fname = peek_proc_string(pid, pr_addr);
-			printf("OPEN: fichero %s\n", fname);
+			printf("[%d] open() del fichero %s retorna ", pid, fname);
 			if(fname) free(fname);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 			waitpid(pid, status, 0);
 			ptrace(PTRACE_GETREGS, pid, NULL, regs);
 			int fd = regs->rax;
-			printf("FIN OPEN: retorna %d\n", fd);
+			printf("%d\n", fd);
 			return 1;
 		}
 		case SYS_write: {
@@ -59,18 +59,18 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 			void *pr_addr = (void *)regs->rsi;
 			char buf[count];
 			peek_proc_mem(pid, pr_addr, buf, count);
-			printf("WRITE: descritor de fichero %d, tamaño %ld, datos=\"", (int)regs->rdi, count);
+			printf("[%d] write() con argumentos: descritor de fichero %d, tamaño %ld, datos=\"", pid, (int)regs->rdi, count);
 			fwrite(buf, count, 1, stdout);
 			printf("\"\n");
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 			waitpid(pid, status, 0);
 			ptrace(PTRACE_GETREGS, pid, NULL, regs);
 			count = regs->rax;
-			printf("FIN WRITE: retorna %ld\n", count);
+			printf("Retorna: %ld\n", count);
 			return 1;
 		}
 		case SYS_read: {
-		       	printf("READ: descriptor de fichero %d, tamaño %llu\n", (int)regs->rdi, regs->rdx);
+		       	printf("[%d] read() con argumentos: descriptor de fichero %d, tamaño %llu\n", pid, (int)regs->rdi, regs->rdx);
 		       	ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 			waitpid(pid, status, 0);
 		       	ptrace(PTRACE_GETREGS, pid, NULL, regs);
@@ -78,7 +78,7 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 		       	char buf[count];
 		       	void *pr_addr = (void *)regs->rsi;
 		       	peek_proc_mem(pid, pr_addr, buf, count);
-		       	printf("FIN READ: retorna %ld, datos=\"", count);
+		       	printf("Retorna %ld, datos=\"", count);
 		       	fwrite(buf, count, 1, stdout);
 		      	printf("\"\n");
 		       	return 1;
@@ -86,7 +86,7 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 		case SYS_execve: {
 		 	void* pr_addr = (void*)regs->rdi;
 			char* fname = peek_proc_string(pid, pr_addr);
-			printf("EXEC: programa %s\n", fname);
+			printf("[%d] exec() del programa %s\n", pid, fname);
 			if(fname) free(fname);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 		      	waitpid(pid, status, 0);
@@ -96,27 +96,27 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 		}
 		case SYS_dup: {
 		      	int oldfd = regs->rdi;
-		      	printf("DUP: oldfd=%d", oldfd);
+		      	printf("[%d] dup() con argumentos: oldfd=%d\n", pid, oldfd);
 		      	ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 		      	waitpid(pid, status, 0);
 		      	ptrace(PTRACE_GETREGS, pid, NULL, regs);
-		      	printf(" = %lld\n", regs->rax);
+		      	printf("Retorna %lld\n", regs->rax);
 		      	return 1;
 	      	}
 		case SYS_dup2: {
 			int oldfd = regs->rdi;
 			int newfd = regs->rsi;
-			printf("DUP2: oldfd=%d, newfd=%d", oldfd, newfd);
+			printf("[%d] dup2() con argumentos: oldfd=%d, newfd=%d\n", pid, oldfd, newfd);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 			waitpid(pid, status, 0);
 			ptrace(PTRACE_GETREGS, pid, NULL, regs);
-			printf(" = %lld\n", regs->rax);
+			printf("Retorna %lld\n", regs->rax);
 			return 1;
 		}
 		case SYS_pipe:
 		case SYS_pipe2: {
 			void* pr_addr = (void*) regs->rdi;
-		       	printf("PIPE: ");
+		       	printf("[%d] pipe() con argumentos: buffer con direccion %p\n", pid, pr_addr);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 			waitpid(pid, status, 0);
 			ptrace(PTRACE_GETREGS, pid, NULL, regs);
@@ -124,9 +124,9 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 			if(ret == 0) {
 				int fd[2];
 				peek_proc_mem(pid, pr_addr, fd, sizeof(fd));
-				printf("fd lectura %d, fd escritura %d ", fd[0], fd[1]); 
+				printf("Descriptores creados: fd lectura %d, fd escritura %d\n", fd[0], fd[1]); 
 			}
-			printf("= %ld\n", ret);
+			printf("Retorna %ld\n", ret);
 		       	return 1;
 	       	}
 		case SYS_clone: {
@@ -144,13 +144,13 @@ int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_arr
 			return 1;
 		}
 		case SYS_wait4: {
-			printf("WAIT\n");
+			printf("[%d] wait()\n", pid);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 			waitpid(pid, status, 0);
 			return 1;
 		}
 		default: 
-			printf("Syscall no de interes: %d\n", syscall_nr);
+			printf("[%d] syscall no de interes: %d\n", pid, syscall_nr);
 			ptrace(PTRACE_SYSCALL, pid, NULL, NULL);
 			if(syscall_nr != SYS_exit_group) waitpid(pid, status, 0);
 			return 0;
