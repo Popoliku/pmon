@@ -3,9 +3,7 @@
 Monitor interactivo multiproceso basado en `ptrace` 
 para sistemas Linux (x86_64).
 
----
-
-## 📋 ¿De qué va el proyecto?
+## ¿De qué va el proyecto?
 
 **pmon** es una herramienta interactiva para monitorizar
 y trazar llamadas al sistema (syscalls) en Linux. 
@@ -16,9 +14,7 @@ mediante `fork`). Intercepta de forma segura
 las fases de entrada y salida de cada syscall sin alterar 
 el flujo original del binario. 
 
----
-
-## 🛠️ Requisitos previos
+## Requisitos previos
 
 El monitor requiere un entorno **Linux nativo de 64 bits** (x86_64).
 Instala los siguientes paquetes esenciales:
@@ -28,9 +24,7 @@ sudo apt update
 sudo apt install cmake build-essential
 ```
 
----
-
-## 📥 Descarga
+## Descarga
 
 Clona el repositorio:
 
@@ -39,9 +33,7 @@ git clone https://github.com/Popoliku/pmon
 cd pmon
 ```
 
----
-
-## 🔨 Compilación
+## Compilación
 
 La forma recomendada de compilar el proyecto es mediante el Makefile:
 
@@ -66,9 +58,7 @@ binarios de tests
 programas auxiliares de testing
 ```
 
----
-
-## ▶️ Ejecución
+## Ejecución
 
 Se puede ejecutar simplemente con:
 
@@ -103,9 +93,7 @@ ps         → imprime la jerarquía de procesos así como el estado de los desc
 quit       → sale de pmon
 ```
 
----
-
-## 🧪 Tests
+## Tests
 
 Ejecutar todos los tests:
 
@@ -128,9 +116,7 @@ Ejecutar un test específico:
 ./build/test_fd_table
 ```
 
----
-
-## 📁 Estructura del proyecto
+## Estructura del proyecto
 
 ```text
 .
@@ -143,9 +129,7 @@ Ejecutar un test específico:
 └── README.md
 ```
 
----
-
-## 🧹 Limpieza
+## Limpieza
 
 Eliminar archivos generados:
 
@@ -153,9 +137,7 @@ Eliminar archivos generados:
 make clean
 ```
 
----
-
-## 📝 Notas
+## Notas
 
 pmon está desarrollado y probado en Linux.
 El monitor utiliza ptrace, por lo que requiere permisos adecuados para trazar procesos.
