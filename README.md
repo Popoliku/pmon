@@ -43,20 +43,26 @@ cd pmon
 
 La forma recomendada de compilar el proyecto es mediante el Makefile:
 
+```bash
 make
+```
 
 Esto configurará automáticamente el directorio de build y compilará pmon junto con los tests.
 
 Alternativamente, el proyecto también puede compilarse manualmente con CMake:
 
+```bash
 cmake -S . -B build
 cmake --build build
+```
 
 Esto generará:
 
+```text
 build/pmon → ejecutable principal
 binarios de tests
 programas auxiliares de testing
+```
 
 ---
 
