@@ -27,7 +27,7 @@ void print_fds(FILE* stream, pid_t pid, int level) {
 	DIR* dir = opendir(path);
 	if (!dir) return;
 	struct dirent* entry;
-	int fds[256]; 
+	int fds[256];
 	int n = 0;
 	while ((entry = readdir(dir)) != NULL && n<256) {
 		if (entry->d_name[0] == '.') continue;
@@ -36,10 +36,10 @@ void print_fds(FILE* stream, pid_t pid, int level) {
 	closedir(dir);
 	for (int i = 0; i<n-1; i++) {
 		for (int j = i+1; j<n; j++) {
-			if (fds[i]>fds[j]) { 
-				int temp = fds[i]; 
-				fds[i] = fds[j]; 
-				fds[j] = temp; 
+			if (fds[i]>fds[j]) {
+				int temp = fds[i];
+				fds[i] = fds[j];
+				fds[j] = temp;
 			}
 		}
 	}
@@ -50,13 +50,15 @@ void print_fds(FILE* stream, pid_t pid, int level) {
 		int len = readlink(link, target, sizeof(target) - 1);
 		if (len == -1) continue;
 		target[len] = '\0';
-		for(int j = 0; j<level; j++) {
+		for (int j = 0; j<level; j++) {
 			fprintf(stream, "      ");
 		}
 		if (strncmp(target, "pipe:", 5) == 0) {
 			int mode = fd_mode(pid, fd);
-			if(mode) fprintf(stream, "│ FD %d --> extremo de escritura %s\n", fd, target);
-			else fprintf(stream, "│ FD %d --> extremo de lecetura %s\n", fd, target);
+			if (mode) fprintf(stream, "│ FD %d --> extremo de escritura %s\n", fd, target);
+			else fprintf(stream, "│ FD %d --> extremo de lectura %s\n", fd, target);
+		} else if (strncmp(target, "socket:", 7) == 0) {
+			fprintf(stream, "│ FD %d --> socket %s\n", fd, target);
 		} else {
 			fprintf(stream, "│ FD %d --> %s\n", fd, target);
 		}

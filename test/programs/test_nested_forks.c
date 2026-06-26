@@ -3,17 +3,15 @@
  *
  * Programa de prueba para el monitor pmon.
  *
- * Cuatro procesos en los que se intenta abarcar todos los syscall de interes, 
- * en este orden: (!!Este esquema no esta actualiado)
+ * Jerarquia de procesos y syscalls de interes:
  *
- *   P0 (padre)     -> open() + write()  
- *   P1 (hijo)      -> open() + read()   
- *   P2 (nieto)     -> pipe() + dup2()   
- *   P3 (bisnieto)  -> execve()         
+ *   P0 (padre)     -> open() + write() + fork(P1) + wait(P1)
+ *   P1 (hijo)      -> socket() + read(stdin) [BLOQUEANTE] + fork(P2) + wait(P2)
+ *   P2 (nieto)     -> pipe() + dup2() + fork(P3) + wait(P3)
+ *   P3 (bisnieto)  -> execve()
  *
- * Cada proceso espera a que su hijo termine antes de terminar el mismo,
- * por lo que no se recomienda hacer cont de un proceso si la siguiente syscall
- * es un wait().
+ * P1 se bloquea en read(0,...) esperando datos por stdin.
+ * Usar el comando: send <pid_P1> <datos>
  *
  * Uso:
  *   ./pmon ./test_nested_forks
@@ -24,6 +22,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -41,7 +41,7 @@ int nieto() {
     if (pipe(pipefd) == -1) {
         perror("pipe");
         return 1;
-    } 
+    }
     if (dup2(pipefd[1], 10) == -1) {
         perror("dup2");
         return 1;
@@ -56,8 +56,6 @@ int nieto() {
     }
     const char *msg = "nieto write\n";
     write(1, msg, strlen(msg));
-    const char *msg2 = "nieto write 2\n";
-    write(1, msg2, strlen(msg));
     waitpid(pid, NULL, 0);
     close(pipefd[0]);
     close(pipefd[1]);
@@ -66,17 +64,16 @@ int nieto() {
 }
 
 int hijo() {
-    int fd = open(TMP_FILE, O_RDONLY);
-    if (fd == -1) {
-        perror("open");
-        return 1;
-    }
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock >= 0) close(sock);
+
     char buf[64];
-    ssize_t n = read(fd, buf, sizeof(buf) - 1);
+    ssize_t n = read(0, buf, sizeof(buf) - 1);
     if (n > 0) {
         buf[n] = '\0';
+        write(1, buf, n);
     }
-    close(fd);
+
     pid_t pid = fork();
     if (pid < 0) {
         perror("fork hijo");
@@ -98,6 +95,7 @@ int main(void) {
     const char *contenido = "padre write\n";
     write(fd, contenido, strlen(contenido));
     close(fd);
+
     pid_t pid1 = fork();
     if (pid1 < 0) {
         perror("fork padre");
@@ -105,19 +103,8 @@ int main(void) {
     }
     if (pid1 == 0) {
         return hijo();
-    }    
-    const char *msg = "hijo 2 write\n";
-    pid_t pid2 = fork();
-    if (pid2 < 0) {
-    	perror("segundo fork padre");
-	return 1;
-    }
-    if (pid2 == 0) {
-	write(1, msg, strlen(msg));
-    	return 0;
     }
     waitpid(pid1, NULL, 0);
-    waitpid(pid2, NULL, 0);
     unlink(TMP_FILE);
     return 0;
 }

@@ -4,31 +4,10 @@
 #include <sys/types.h>
 #include "pr_tree.h"
 
-/**
- * @brief 	   Lee un bloque de memoria del espacio de direcciones del proceso monitorizado.
- * @param pid      Identificador del proceso (PID) al que se le va a leer la memoria.
- * @param org      Puntero a la direccion de memoria de origen dentro del proceso hijo.
- * @param dst	   Puntero al buffer de destino en el proceso monitor donde se guardaran los datos.
- * @param n        Numero de bytes totales que se desean leer.
- */
 void peek_proc_mem(pid_t pid, const void* org, void* dst, size_t n);
+char* peek_proc_string(pid_t pid, const void* org);
 
-/**
- * @brief 	   Lee una cadena de caracteres (string) de la memoria del proceso monitorizado hasta encontrar el caracter nulo.
- * @param pid      Identificador del proceso (PID) del cual se va a extraer la cadena.
- * @param org      Puntero a la direccion de memoria dentro del proceso hijo donde esta la cadena.
- * @return         Un puntero a una cadena de caracteres, debe ser liberada con free() por el llamador. Retorna NULL en caso de error.
- */
-char * peek_proc_string(pid_t pid, const void *org);
-
-/**
- * @brief 	      Intercepta la syscall del proceso monitorizado y printea sus argumentos y el valor de retorno.
- * @param pid         Identificador del proceso (PID) que ha disparado la llamada al sistema.
- * @param status      Puntero al entero que contiene el estado de parada actual reportado por waitpid().
- * @param regs        Puntero a la estructura que contiene los registros de la CPU del proceso. 
- * @param prs	      Puntero a la estructura que contiene los pid de los procesos creados hasta ahora
- * @return 	      Un entero que representa si la syscall era una de interes o no.	   
- */
-int handle_syscall(pid_t pid, int* status, struct user_regs_struct* regs, pr_array* prs);
+void handle_syscall_entrada(pid_t pid, pr_array* prs);
+void handle_syscall_salida(pid_t pid, int* status, pr_array* prs);
 
 #endif

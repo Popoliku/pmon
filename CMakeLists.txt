@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(criterion)
 
 add_executable(pmon src/monitor.c src/input.c src/syscall_handler.c src/pr_tree.c src/fd_table.c)
 target_include_directories(pmon PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(pmon PRIVATE pthread)
 
 add_executable(test_nested_forks test/programs/test_nested_forks.c)
 

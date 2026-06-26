@@ -30,21 +30,24 @@ Test(add_pr, array_full) {
 	free(prs.nodes);
 }
 
-Test(pr_state_and_mark_term, success) {
-	pr_node nodes[] = {
-		{ 1000, -1, 1 },
-		{ 2000, 1000, 1 }
-	};
-	pr_array prs = { nodes, 2, 10 };
+Test(pr_get_state_and_set_state, success) {
+	pr_array prs = { NULL, 0, 0 };
+	add_pr(&prs, 1000, -1);
+	add_pr(&prs, 2000, 1000);
 
-	cr_assert_eq(pr_state(&prs, 1000), 1);
-	cr_assert_eq(pr_state(&prs, 2000), 1);
+	cr_assert_eq(pr_get_state(&prs, 1000), PR_STOPPED);
+	cr_assert_eq(pr_get_state(&prs, 2000), PR_STOPPED);
 
-	mark_term(&prs, 2000);
+	pr_set_state(&prs, 2000, PR_TERMINATED);
 
-	cr_assert_eq(pr_state(&prs, 2000), 0);
-	cr_assert_eq(pr_state(&prs, 1000), 1);
-	cr_assert_eq(pr_state(&prs, 9999), -1);
+	cr_assert_eq(pr_get_state(&prs, 2000), PR_TERMINATED);
+	cr_assert_eq(pr_get_state(&prs, 1000), PR_STOPPED);
+	cr_assert_eq(pr_get_state(&prs, 9999), -1);
+
+	pr_set_state(&prs, 1000, PR_BLOCKED);
+	cr_assert_eq(pr_get_state(&prs, 1000), PR_BLOCKED);
+
+	free(prs.nodes);
 }
 
 Test(print_tree, empty_tree) {
