@@ -39,6 +39,7 @@ void quit_cmd() {
 }
 
 void* ui_thread() {
+	pmon_cmd last_cmd = {0, 0, {0}};
 	while (1) {
 		char r;
 		read(ready_pipe[0], &r, 1);
@@ -50,6 +51,11 @@ void* ui_thread() {
 		if (pmon_argc == 0) {
 			free(pmon_argv);
 			free(command);
+			if (last_cmd.tipo != 0) {
+				write(cmd_pipe[1], &last_cmd, sizeof(last_cmd));
+			} else {
+				write(ready_pipe[1], "R", 1);
+			}
 			continue;
 		}
 
@@ -58,17 +64,21 @@ void* ui_thread() {
 		if (strcmp(pmon_argv[0], "cont") == 0) {
 			if (pmon_argc != 2) {
 				printf("El uso correcto del comando es: cont <pid>\n");
+				write(ready_pipe[1], "R", 1);
 			} else {
 				cmd.tipo = CMD_CONT;
 				cmd.pid = atoi(pmon_argv[1]);
 				write(cmd_pipe[1], &cmd, sizeof(cmd));
+				last_cmd = cmd;
 			}
 		} else if (strcmp(pmon_argv[0], "ps") == 0) {
 			cmd.tipo = CMD_PS;
 			write(cmd_pipe[1], &cmd, sizeof(cmd));
+			last_cmd = cmd;
 		} else if (strcmp(pmon_argv[0], "send") == 0) {
 			if (pmon_argc < 3) {
 				printf("El uso correcto del comando es: send <pid> <datos>\n");
+				write(ready_pipe[1], "R", 1);
 			} else {
 				cmd.tipo = CMD_SEND;
 				cmd.pid = atoi(pmon_argv[1]);
@@ -79,6 +89,7 @@ void* ui_thread() {
 				}
 				strncat(cmd.data, "\n", sizeof(cmd.data) - strlen(cmd.data) - 1);
 				write(cmd_pipe[1], &cmd, sizeof(cmd));
+				last_cmd = cmd;
 			}
 		} else if (strcmp(pmon_argv[0], "quit") == 0) {
 			cmd.tipo = CMD_QUIT;
@@ -165,7 +176,7 @@ int main(int argc, char** argv) {
 			}
 			listo = 1;
 		}
-		usleep(1000);
+		usleep(5000);
 		for (int i = 0; i < prs.size; i++) {
 			if (prs.nodes[i].state != PR_BLOCKED) continue;
 			pid_t pid = prs.nodes[i].pid;
@@ -175,6 +186,7 @@ int main(int argc, char** argv) {
 				listo = 1;
 			}
 		}
+		usleep(5000);
 		if (listo) write(ready_pipe[1], "R", 1);
 	}
 }
